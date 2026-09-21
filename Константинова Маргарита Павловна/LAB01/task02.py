@@ -21,7 +21,7 @@ def main():
     otsenki_po_kursam = {kurs: [] for kurs in KURSY}
 
     while True:
-        imya = input("Имя студента (Enter для завершения): ")
+        imya = input("Имя студента (Enter для завершения):\n")
         if not imya:
             break
         for kurs in KURSY:
