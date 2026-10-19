@@ -2,10 +2,10 @@
 
 from collections.abc import Callable
 
-klassifikatsiya: Callable[[int], str] = lambda chislo: (
-    ("positive even" if chislo % 2 == 0 else "positive odd")
-    if chislo > 0
-    else ("negative" if chislo < 0 else "zero")
+klassifikatsiya: Callable[[int], str] = lambda znachenie: (
+    ("positive even" if znachenie % 2 == 0 else "positive odd")
+    if znachenie > 0
+    else ("negative" if znachenie < 0 else "zero")
 )
 
 if __name__ == "__main__":

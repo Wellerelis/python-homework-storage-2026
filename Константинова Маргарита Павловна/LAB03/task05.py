@@ -5,6 +5,7 @@ from collections.abc import Callable
 from typing import TypeVar
 
 T = TypeVar("T")
+"""Обобщенный тип, который позволяет сохранить тип результата funktsiy, obertka возвращает list[T] с тем же T, какой вернула бы сама funktsiya, а не list[Any]."""
 
 
 def n_raz(n: int) -> Callable[[Callable[..., T]], Callable[..., list[T]]]:
