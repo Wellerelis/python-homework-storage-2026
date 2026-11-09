@@ -4,6 +4,7 @@ from typing import Any, Self
 
 MAKSIMALNAYA_SKOROST: float = 400.0
 MAKSIMALNAYA_EMKOST: float = 500.0
+TARIF_ZA_TONNOKILOMETR: float = 15.0
 
 
 class Transport:
@@ -13,8 +14,8 @@ class Transport:
         """Создает транспорт, проверяя допустимость скорости и емкости."""
         self._proverit_skorost(skorost)
         self._proverit_emkost(emkost)
-        self.__skorost: float = skorost
-        self.__emkost: float = emkost
+        self._skorost: float = skorost
+        self._emkost: float = emkost
 
     @staticmethod
     def _proverit_skorost(skorost: float) -> None:
@@ -31,20 +32,20 @@ class Transport:
     @property
     def skorost(self) -> float:
         """Возвращает скорость транспорта."""
-        return self.__skorost
+        return self._skorost
 
     @property
     def emkost(self) -> float:
         """Возвращает емкость транспорта."""
-        return self.__emkost
+        return self._emkost
 
     def harakteristiki(self) -> str:
         """Возвращает строку с основными характеристиками транспорта."""
-        return f"{type(self).__name__}: скорость {self.__skorost} км/ч, емкость {self.__emkost}"
+        return f"{type(self).__name__}: скорость {self._skorost} км/ч, емкость {self._emkost}"
 
     def prevysila_otmetku(self, otmetka: float) -> bool:
         """Возвращает True, если скорость транспорта превысила заданную отметку."""
-        return self.__skorost > otmetka
+        return self._skorost > otmetka
 
     @classmethod
     def iz_slovarya(cls, dannye: dict[str, Any]) -> Self:
@@ -58,45 +59,43 @@ class Bus(Transport):
     def __init__(self, skorost: float, emkost: float, marshrut: str = "") -> None:
         """Создает автобус с маршрутом поверх базовых характеристик транспорта."""
         super().__init__(skorost, emkost)
-        self.__marshrut: str = marshrut
+        self._marshrut: str = marshrut
 
     @property
     def marshrut(self) -> str:
         """Возвращает текущий маршрут автобуса."""
-        return self.__marshrut
+        return self._marshrut
 
     @marshrut.setter
     def marshrut(self, novyi_marshrut: str) -> None:
         """Задает новый маршрут автобуса."""
-        self.__marshrut = novyi_marshrut
+        self._marshrut = novyi_marshrut
 
     def harakteristiki(self) -> str:
         """Возвращает строку с характеристиками автобуса, включая маршрут."""
-        return f"{super().harakteristiki()}, маршрут {self.__marshrut!r}"
+        return f"{super().harakteristiki()}, маршрут {self._marshrut!r}"
 
 
 class Truck(Transport):
     """Грузовик с грузоподъемностью."""
 
-    TARIF_ZA_TONNOKILOMETR: float = 15.0
-
     def __init__(self, skorost: float, emkost: float, gruzopodyemnost: float) -> None:
         """Создает грузовик поверх базовых характеристик транспорта."""
         super().__init__(skorost, emkost)
-        self.__gruzopodyemnost: float = gruzopodyemnost
+        self._gruzopodyemnost: float = gruzopodyemnost
 
     @property
     def gruzopodyemnost(self) -> float:
         """Возвращает грузоподъемность грузовика."""
-        return self.__gruzopodyemnost
+        return self._gruzopodyemnost
 
     def stoimost_perevozki(self, rasstoyanie: float) -> float:
         """Возвращает стоимость перевозки груза на заданное расстояние."""
-        return self.__gruzopodyemnost * rasstoyanie * self.TARIF_ZA_TONNOKILOMETR
+        return self._gruzopodyemnost * rasstoyanie * TARIF_ZA_TONNOKILOMETR
 
     def harakteristiki(self) -> str:
         """Возвращает строку с характеристиками грузовика, включая грузоподъемность."""
-        return f"{super().harakteristiki()}, грузоподъемность {self.__gruzopodyemnost} т"
+        return f"{super().harakteristiki()}, грузоподъемность {self._gruzopodyemnost} т"
 
 
 class Taxi(Transport):
@@ -105,20 +104,20 @@ class Taxi(Transport):
     def __init__(self, skorost: float, emkost: float, tarif: float) -> None:
         """Создает такси поверх базовых характеристик транспорта."""
         super().__init__(skorost, emkost)
-        self.__tarif: float = tarif
+        self._tarif: float = tarif
 
     @property
     def tarif(self) -> float:
         """Возвращает тариф такси за километр."""
-        return self.__tarif
+        return self._tarif
 
     def stoimost_poezdki(self, rasstoyanie: float) -> float:
         """Возвращает стоимость поездки на заданное расстояние."""
-        return self.__tarif * rasstoyanie
+        return self._tarif * rasstoyanie
 
     def harakteristiki(self) -> str:
         """Возвращает строку с характеристиками такси, включая тариф."""
-        return f"{super().harakteristiki()}, тариф {self.__tarif} руб/км"
+        return f"{super().harakteristiki()}, тариф {self._tarif} руб/км"
 
 
 if __name__ == "__main__":
@@ -139,7 +138,6 @@ if __name__ == "__main__":
     except ValueError as oshibka:
         print(f"Ошибка при создании транспорта: {oshibka}")
 
-    transportnye_sredstva: list[Transport] = [avtobus, gruzovik, taksi_iz_slovarya]
-    for sredstvo in transportnye_sredstva:
+    for sredstvo in (avtobus, gruzovik, taksi_iz_slovarya):
         print(sredstvo.harakteristiki())
         print(sredstvo.prevysila_otmetku(80.0))

@@ -9,6 +9,13 @@ DOPUSTIMYE_POLY: tuple[str, str] = ("м", "ж")
 PENSIONNYI_VOZRAST_MUZHCHIN: int = 65
 PENSIONNYI_VOZRAST_ZHENSHCHIN: int = 60
 MESYATSEV_V_GODU: int = 12
+DOLZHNOST_MENEDZHERA: str = "менеджер"
+DOLZHNOST_RAZRABOTCHIKA: str = "разработчик"
+DOLZHNOST_DIZAINERA: str = "дизайнер"
+
+
+class SotrudnikUmer(Exception):
+    """Исключение, означающее смерть сотрудника от нехватки денег на жизнь."""
 
 
 class Person:
@@ -20,32 +27,32 @@ class Person:
             raise ValueError(f"недопустимый пол: {pol}")
         if vozrast < 0:
             raise ValueError(f"недопустимый возраст: {vozrast}")
-        self.__imya: str = imya
-        self.__pol: str = pol
-        self.__vozrast: int = vozrast
+        self._imya: str = imya
+        self._pol: str = pol
+        self._vozrast: int = vozrast
 
     @property
     def imya(self) -> str:
         """Возвращает имя человека."""
-        return self.__imya
+        return self._imya
 
     @property
     def pol(self) -> str:
         """Возвращает пол человека."""
-        return self.__pol
+        return self._pol
 
     @property
     def vozrast(self) -> int:
         """Возвращает возраст человека."""
-        return self.__vozrast
+        return self._vozrast
 
     def predstavit(self) -> str:
         """Возвращает строку с представлением человека."""
-        return f"{self.__imya}, пол {self.__pol}, возраст {self.__vozrast}"
+        return f"{self._imya}, пол {self._pol}, возраст {self._vozrast}"
 
     def eto_vzrosly(self) -> bool:
         """Возвращает True, если человек достиг совершеннолетия."""
-        return self.__vozrast >= VOZRAST_SOVERSHENNOLETIYA
+        return self._vozrast >= VOZRAST_SOVERSHENNOLETIYA
 
     @classmethod
     def iz_peremennyh(cls, imya: str, pol: str, vozrast: int) -> Self:
@@ -72,29 +79,29 @@ class Employee(Person, ABC):
         if srednie_raskhody < 0:
             raise ValueError(f"недопустимые расходы: {srednie_raskhody}")
         if srednie_raskhody > zarplata:
-            raise ValueError(f"{imya} умер: расходы {srednie_raskhody} превышают зарплату {zarplata}")
-        self.__dolzhnost: str = dolzhnost
-        self.__zarplata: float = zarplata
-        self.__srednie_raskhody: float = srednie_raskhody
+            raise SotrudnikUmer(f"{imya} умер: расходы {srednie_raskhody} превышают зарплату {zarplata}")
+        self._dolzhnost: str = dolzhnost
+        self._zarplata: float = zarplata
+        self._srednie_raskhody: float = srednie_raskhody
 
     @property
     def dolzhnost(self) -> str:
         """Возвращает должность сотрудника."""
-        return self.__dolzhnost
+        return self._dolzhnost
 
     @property
     def zarplata(self) -> float:
         """Возвращает зарплату сотрудника."""
-        return self.__zarplata
+        return self._zarplata
 
     @property
     def srednie_raskhody(self) -> float:
         """Возвращает средние расходы сотрудника в месяц."""
-        return self.__srednie_raskhody
+        return self._srednie_raskhody
 
     def predstavit(self) -> str:
         """Возвращает строку с представлением сотрудника, дополняя представление человека."""
-        return f"{super().predstavit()}, должность {self.__dolzhnost}, зарплата {self.__zarplata}"
+        return f"{super().predstavit()}, должность {self._dolzhnost}, зарплата {self._zarplata}"
 
     @abstractmethod
     def rabotat(self) -> str:
@@ -102,7 +109,7 @@ class Employee(Person, ABC):
 
     def otsenit_pritok_deneg(self, n_mesyatsev: int) -> float:
         """Возвращает чистый приток денег сотрудника за заданное количество месяцев."""
-        return (self.__zarplata - self.__srednie_raskhody) * n_mesyatsev
+        return (self._zarplata - self._srednie_raskhody) * n_mesyatsev
 
     def rasschitat_nakopleniya_k_pensii(self) -> float:
         """Возвращает сумму, которую сотрудник накопит к пенсии при текущих доходах и расходах."""
@@ -115,34 +122,34 @@ class Manager(Employee):
     """Менеджер со списком подчиненных."""
 
     def __init__(self, imya: str, pol: str, vozrast: int, zarplata: float, srednie_raskhody: float) -> None:
-        """Создает менеджера с должностью 'менеджер' и пустым списком подчиненных."""
-        super().__init__(imya, pol, vozrast, "менеджер", zarplata, srednie_raskhody)
-        self.__podchinennye: list[str] = []
+        """Создает менеджера с должностью менеджера и пустым списком подчиненных."""
+        super().__init__(imya, pol, vozrast, DOLZHNOST_MENEDZHERA, zarplata, srednie_raskhody)
+        self._podchinennye: list[str] = []
 
     @property
     def podchinennye(self) -> list[str]:
         """Возвращает копию списка подчиненных менеджера."""
-        return list(self.__podchinennye)
+        return list(self._podchinennye)
 
     def dobavit_podchinennogo(self, imya_podchinennogo: str) -> None:
         """Добавляет подчиненного менеджеру."""
-        self.__podchinennye.append(imya_podchinennogo)
+        self._podchinennye.append(imya_podchinennogo)
 
     def udalit_podchinennogo(self, imya_podchinennogo: str) -> None:
         """Удаляет подчиненного у менеджера."""
-        self.__podchinennye.remove(imya_podchinennogo)
+        self._podchinennye.remove(imya_podchinennogo)
 
     def provesti_miting(self) -> str:
         """Проводит совещание для текущих подчиненных менеджера."""
-        return f"{self.imya} проводит совещание для {len(self.__podchinennye)} подчиненных"
+        return f"{self.imya} проводит совещание для {len(self._podchinennye)} подчиненных"
 
     def rabotat(self) -> str:
         """Описывает работу менеджера как управление подчиненными."""
-        return f"{self.imya} управляет командой из {len(self.__podchinennye)} человек"
+        return f"{self.imya} управляет командой из {len(self._podchinennye)} человек"
 
     def predstavit(self) -> str:
         """Возвращает строку с представлением менеджера, дополняя представление сотрудника."""
-        return f"{super().predstavit()}, подчиненных {len(self.__podchinennye)}"
+        return f"{super().predstavit()}, подчиненных {len(self._podchinennye)}"
 
 
 class Developer(Employee):
@@ -157,18 +164,18 @@ class Developer(Employee):
         srednie_raskhody: float,
         yazyki_programmirovaniya: list[str],
     ) -> None:
-        """Создает разработчика с должностью 'разработчик' и списком языков программирования."""
-        super().__init__(imya, pol, vozrast, "разработчик", zarplata, srednie_raskhody)
-        self.__yazyki_programmirovaniya: list[str] = list(yazyki_programmirovaniya)
+        """Создает разработчика с должностью разработчика и списком языков программирования."""
+        super().__init__(imya, pol, vozrast, DOLZHNOST_RAZRABOTCHIKA, zarplata, srednie_raskhody)
+        self._yazyki_programmirovaniya: list[str] = yazyki_programmirovaniya
 
     @property
     def yazyki_programmirovaniya(self) -> list[str]:
         """Возвращает копию списка языков программирования разработчика."""
-        return list(self.__yazyki_programmirovaniya)
+        return list(self._yazyki_programmirovaniya)
 
     def pisat_na_sluchainom_yazyke(self) -> str:
         """Пишет программу на случайном языке из списка известных разработчику."""
-        yazyk = random.choice(self.__yazyki_programmirovaniya)
+        yazyk = random.choice(self._yazyki_programmirovaniya)
         return f"{self.imya} пишет программу на {yazyk}"
 
     def rabotat(self) -> str:
@@ -177,7 +184,7 @@ class Developer(Employee):
 
     def predstavit(self) -> str:
         """Возвращает строку с представлением разработчика, дополняя представление сотрудника."""
-        return f"{super().predstavit()}, языки {', '.join(self.__yazyki_programmirovaniya)}"
+        return f"{super().predstavit()}, языки {', '.join(self._yazyki_programmirovaniya)}"
 
 
 class Designer(Employee):
@@ -192,18 +199,20 @@ class Designer(Employee):
         srednie_raskhody: float,
         instrumenty: list[str],
     ) -> None:
-        """Создает дизайнера с должностью 'дизайнер' и списком инструментов."""
-        super().__init__(imya, pol, vozrast, "дизайнер", zarplata, srednie_raskhody)
-        self.__instrumenty: list[str] = list(instrumenty)
+        """Создает дизайнера с должностью дизайнера и списком инструментов."""
+        super().__init__(imya, pol, vozrast, DOLZHNOST_DIZAINERA, zarplata, srednie_raskhody)
+        self._instrumenty: list[str] = instrumenty
 
     @property
     def instrumenty(self) -> list[str]:
         """Возвращает копию списка инструментов дизайнера."""
-        return list(self.__instrumenty)
+        return list(self._instrumenty)
 
     def sozdat_maket(self) -> str:
         """Создает макет с помощью первого инструмента из списка дизайнера."""
-        instrument = self.__instrumenty[0]
+        if not self._instrumenty:
+            raise ValueError("у дизайнера нет доступных инструментов")
+        instrument = self._instrumenty[0]
         return f"{self.imya} создает макет с помощью {instrument}"
 
     def rabotat(self) -> str:
@@ -212,7 +221,7 @@ class Designer(Employee):
 
     def predstavit(self) -> str:
         """Возвращает строку с представлением дизайнера, дополняя представление сотрудника."""
-        return f"{super().predstavit()}, инструменты {', '.join(self.__instrumenty)}"
+        return f"{super().predstavit()}, инструменты {', '.join(self._instrumenty)}"
 
 
 if __name__ == "__main__":
@@ -226,11 +235,10 @@ if __name__ == "__main__":
 
     try:
         Manager("Иван Иванов", "м", 30, 50000.0, 60000.0)
-    except ValueError as oshibka:
+    except SotrudnikUmer as oshibka:
         print(f"Ошибка при создании сотрудника: {oshibka}")
 
-    sotrudniki: list[Employee] = [menedzher, razrabotchik, dizainer]
-    for sotrudnik in sotrudniki:
+    for sotrudnik in (menedzher, razrabotchik, dizainer):
         print(sotrudnik.predstavit())
         print(sotrudnik.rabotat())
         print(sotrudnik.rasschitat_nakopleniya_k_pensii())
